@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorFlow Hub MoveNet Model</title>
+  <link rel="icon" type="image/png" href="tensorflow.png">
+  <!-- Tailwind CSS para un diseño profesional -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TensorFlow.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+</head>
+
+<body class="bg-[#0f172a] text-slate-200 font-sans min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-4xl w-full flex flex-col items-center">
+    <!-- Encabezado Estilizado -->
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-black text-indigo-400 mb-3 tracking-tighter uppercase italic">
+        MoveNet Pose Detector
+      </h1>
+      <div class="h-1 w-24 bg-indigo-500 mx-auto rounded-full mb-4"></div>
+      <p class="text-slate-400 text-sm max-w-md mx-auto">
+        Carga de modelos crudos desde TensorFlow Hub para detección de pose humana en tiempo real.
+      </p>
+    </header>
+
+    <!-- Contenedor Visual (Imagen + Capa de Puntos) -->
+    <div
+      class="relative group bg-slate-800 p-3 rounded-[2rem] shadow-2xl border border-slate-700 transition-all hover:border-indigo-500/50">
+
+      <div class="relative overflow-hidden rounded-2xl shadow-inner bg-black flex">
+        <!-- Imagen Base (Visible siempre) -->
+        <img id="exampleImg" width="640" height="360" crossorigin="anonymous"
+          src="https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg" class="block object-cover" />
+
+        <!-- Canvas Superpuesto (Transparente, donde se dibujan los puntos) -->
+        <canvas id="outputCanvas" width="640" height="360"
+          class="absolute top-0 left-0 pointer-events-none w-full h-full">
+        </canvas>
+      </div>
+
+      <!-- Badge de IA -->
+      <div
+        class="absolute -top-3 -right-3 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-indigo-400 animate-pulse">
+        TF.JS ACTIVE
+      </div>
+    </div>
+
+    <!-- Panel de Control Inferior -->
+    <div class="mt-10 w-full max-w-sm flex flex-col gap-4">
+      <!-- Monitor de Estado -->
+      <div id="status" class="bg-slate-900/80 border border-slate-700 p-4 rounded-2xl flex items-center gap-3">
+        <div id="statusIndicator" class="w-2 h-2 rounded-full bg-yellow-500"></div>
+        <p id="statusMsg" class="text-slate-400 font-mono text-[11px] uppercase tracking-widest">
+          Esperando inicialización...
+        </p>
+      </div>
+
+      <!-- Botón de Acción -->
+      <button id="runBtn"
+        class="group relative overflow-hidden bg-indigo-600 hover:bg-indigo-500 transition-all text-white font-black py-5 px-8 rounded-2xl shadow-xl shadow-indigo-900/40 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed">
+        <span class="relative z-10 flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M11.3 1.047a1 1 0 01.897.953V6.13a3 3 0 01-3 3H4.58a1 1 0 01-.953-1.322l1.5-4.5a1 1 0 01.953-.678h5.22zm-5.41 9.423a1 1 0 01.121 1.993l-3 1.5a1 1 0 01-1.321-1.322l1.5-3a1 1 0 011.606-.171l1.094 1z"
+              clip-rule="evenodd" />
+          </svg>
+          DETECTAR PUNTOS CLAVE
+        </span>
+      </button>
+    </div>
+
+    <footer class="mt-12 text-slate-500 text-[10px] font-medium tracking-widest uppercase">
+      TensorFlow.js &bull; MoveNet Lightning &bull; 2025
+    </footer>
+  </div>
+
+  <!-- Vinculación del Script Lógico -->
+  <script src="js/main.js" type="module"></script>
+</body>
+
+</html>
