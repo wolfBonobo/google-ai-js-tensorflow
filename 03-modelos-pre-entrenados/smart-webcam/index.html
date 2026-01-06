@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Webcam - AI Object Detection</title>
+  <!-- Favicon personalizado para evitar errores de consola -->
+  <link rel="icon" type="image/png" href="tensorflow.png">
+  <!-- Framework de estilos -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TensorFlow.js y Modelo COCO-SSD -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+
+<body class="bg-[#0f172a] text-slate-200 font-sans min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-4xl w-full flex flex-col items-center">
+    <!-- Encabezado con estética tecnológica -->
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-black text-indigo-400 mb-3 tracking-tighter uppercase italic">
+        Smart Webcam AI
+      </h1>
+      <div class="h-1 w-24 bg-indigo-500 mx-auto rounded-full mb-4"></div>
+      <p class="text-slate-400 text-sm max-w-md mx-auto">
+        Detección y clasificación de objetos en tiempo real mediante visión artificial avanzada.
+      </p>
+    </header>
+
+    <!-- Contenedor de Visión (Video + Canvas Overlay) -->
+    <div
+      class="relative group bg-slate-800 p-3 rounded-[2rem] shadow-2xl border border-slate-700 transition-all hover:border-indigo-500/50">
+      <div id="liveView"
+        class="relative overflow-hidden rounded-2xl shadow-inner bg-black flex aspect-video w-[640px] h-[480px]">
+
+        <!-- Video de la Webcam (Espejado para mejor UX) -->
+        <video id="webcam" autoplay muted playsinline
+          class="block object-cover w-full h-full transform scale-x-[-1] bg-slate-900">
+        </video>
+
+        <!-- Capa de dibujo para cuadros y etiquetas -->
+        <canvas id="outputCanvas" width="640" height="480"
+          class="absolute top-0 left-0 pointer-events-none w-full h-full z-10">
+        </canvas>
+
+        <!-- Pantalla de carga mientras la red neuronal se inicializa -->
+        <div id="loaderOverlay"
+          class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90 z-20 transition-opacity duration-700">
+          <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p class="text-[10px] font-bold tracking-[0.2em] text-indigo-300 uppercase">Sincronizando Pesos de Red...</p>
+        </div>
+      </div>
+
+      <!-- Badge indicador de motor IA -->
+      <div
+        class="absolute -top-3 -right-3 bg-indigo-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-indigo-400">
+        COCO-SSD ENGINE
+      </div>
+    </div>
+
+    <!-- Panel de Control y Estado -->
+    <div class="mt-10 w-full max-w-sm flex flex-col gap-4">
+      <div id="status"
+        class="bg-slate-900/80 border border-slate-700 p-4 rounded-2xl flex items-center gap-3 shadow-inner">
+        <div id="statusIndicator" class="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]"></div>
+        <p id="statusMsg" class="text-slate-400 font-mono text-[11px] uppercase tracking-widest">
+          Esperando al modelo...
+        </p>
+      </div>
+
+      <button id="enableCam" disabled
+        class="group relative overflow-hidden bg-indigo-600 hover:bg-indigo-500 transition-all text-white font-black py-5 px-8 rounded-2xl shadow-xl shadow-indigo-900/40 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed">
+        <span class="relative z-10">HABILITAR WEBCAM</span>
+      </button>
+    </div>
+
+    <footer class="mt-12 text-slate-600 text-[9px] font-bold tracking-[0.3em] uppercase">
+      TensorFlow.js Ecosystem &bull; 2026
+    </footer>
+  </div>
+
+  <!-- Punto de entrada de la arquitectura modular -->
+  <script src="js/main.js" type="module"></script>
+</body>
+
+</html>
