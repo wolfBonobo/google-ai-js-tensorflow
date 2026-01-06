@@ -1,77 +1,72 @@
-# 01. Introducción a la IA y TensorFlow.js 🚀
+# 🚀 MoveNet Pose Detector:
 
- En este apartado sentamos las bases de cómo la **Inteligencia Artificial (IA)** y el **Machine Learning (ML)** están revolucionando el desarrollo web utilizando **JavaScript**, el lenguaje más popular del mundo.
-
----
-
-## 🌟 ¿Por qué Machine Learning en JavaScript?
-
-Combinar ML con JS permite crear aplicaciones web con "superpoderes" que antes eran imposibles de lograr solo con ingeniería tradicional.
-
-* **Accesibilidad:** No necesitas aprender un lenguaje nuevo (como Python). Si sabes JS, ya puedes hacer ML.
-* **Flexibilidad de ejecución:** JavaScript corre en todas partes: navegador, servidor (Node.js), móviles, escritorio e incluso dispositivos IoT como Raspberry Pi.
-* **Privacidad y Escala:** Al ejecutar modelos directamente en el cliente (navegador), los datos no necesitan viajar a la nube, garantizando privacidad total y reduciendo costes de servidor.
+Este proyecto implementa una solución avanzada de visión por computadora para la detección de pose humana en tiempo real. Utiliza el modelo **MoveNet Lightning** de TensorFlow.js, organizado bajo una arquitectura de módulos ES6 para garantizar escalabilidad, limpieza y alto rendimiento.
 
 ---
 
-## 🧠 Conceptos Fundamentales
+## 📋 Descripción del Proyecto
 
-Para entender este mundo, es vital distinguir entre estos tres pilares:
+La aplicación utiliza inteligencia artificial para identificar **17 puntos clave** del cuerpo humano (ojos, hombros, codos, muñecas, caderas, rodillas y tobillos) con una latencia mínima.
 
-
-
-[Image of the relationship between Artificial Intelligence, Machine Learning and Deep Learning]
-
-
-1.  **Inteligencia Artificial (IA):** La ciencia general de hacer que las máquinas sean inteligentes o exhiban un comportamiento humano.
-2.  **Machine Learning (ML):** El enfoque práctico para lograr la IA. En lugar de programar reglas fijas ("if-then"), alimentamos al sistema con datos para que aprenda patrones por sí mismo.
-3.  **Deep Learning (DL):** Una técnica específica de ML que utiliza **Redes Neuronales Profundas**. Estas capas de código imitan vagamente el cerebro humano para reconocer patrones complejos (como rostros o voz).
+A diferencia de las implementaciones monolíticas, este proyecto separa la lógica de negocio, el procesamiento de tensores y el renderizado visual en archivos independientes, siguiendo el principio de **Responsabilidad Única**.
 
 ---
 
-## 🔄 Programación Tradicional vs. Machine Learning
+## 🏗️ Estructura de Módulos (JS)
 
-Entender el cambio de flujo de trabajo es crucial para el desarrollador moderno:
+El sistema se divide en los siguientes componentes estratégicos:
 
+### 1. `js/config.js` (Single Source of Truth - SSoT)
 
+Centraliza los hiperparámetros y configuraciones globales:
 
-| Característica | Programación Tradicional | Machine Learning |
-| :--- | :--- | :--- |
-| **Lógica** | Reglas manuales "si-entonces" | El sistema aprende de los datos |
-| **Adaptabilidad** | El código se rompe si el problema cambia | Se usa el mismo código, solo cambian los datos |
-| **Complejidad** | Difícil de escalar en problemas abstractos | Ideal para visión por computadora y NLP |
+- **MODEL_PATH**: URL del modelo en TensorFlow Hub.
+- **INPUT_SIZE**: Tamaño fijo (**192x192**) requerido por MoveNet Lightning.
+- **MIN_CONFIDENCE**: Umbral de certeza (Threshold) para filtrar detecciones ruidosas.
+
+### 2. `js/services/poseService.js` (El Cerebro de IA)
+
+Maneja el ciclo de vida del modelo y la inferencia:
+
+- **Pre-procesamiento**: Realiza el recorte (Crop) y redimensión de la imagen para optimizar la densidad de píxeles.
+- **Inferencia**: Ejecuta `model.predict()` aprovechando la aceleración por GPU.
+- **Memoria**: Implementa `tf.tidy()` para asegurar la liberación automática de memoria de video (VRAM) tras cada frame.
+
+### 3. `js/services/drawingService.js` (Motor Gráfico)
+
+Transforma datos matemáticos en píxeles:
+
+- **Mapeo de Coordenadas**: Convierte las posiciones normalizadas `[0, 1]` a coordenadas reales de píxeles basadas en el tamaño del canvas.
+- **Renderizado**: Dibuja los puntos clave y las líneas de conexión (esqueleto) con estilos personalizados.
+
+### 4. `js/services/uiService.js` (Gestor del DOM)
+
+Abstrae la manipulación del HTML:
+
+- Gestiona indicadores de estado (Cargando, Éxito, Error).
+- Proporciona métodos limpios para actualizar el "Monitor de Estado" sin acoplar la lógica de IA a la interfaz.
+
+### 5. `js/main.js` (El Director de Orquesta)
+
+Controlador principal que orquestra el flujo:
+
+1. Carga el modelo de forma asíncrona.
+2. Inicializa los eventos de usuario.
+3. Dispara el pipeline de detección cuando se detecta una nueva entrada visual.
+
+---
+
+## 🔍 Optimización Crítica: El "Crop & Resize"
+
+MoveNet alcanza su máxima precisión cuando la persona ocupa la mayor parte del área de entrada. Nuestra lógica de **Slice y Resize** garantiza que el modelo reciba la información visual optimizada, evitando que el fondo interfiera en la detección de extremidades.
 
 ---
 
-## 🛠️ Herramientas y Recursos
+## 🚀 Ejecución del Proyecto
 
-En este curso utilizaremos **TensorFlow.js**, la librería de Google para desarrolladores de JavaScript.
+Para dar soporte a los módulos ES6 y evitar bloqueos de **CORS** al cargar el modelo desde TensorFlow Hub, es necesario un servidor local:
 
-* 🌐 [Documentación Oficial de TensorFlow.js](https://www.tensorflow.org/js)
-* 📚 [Referencia de la API de TensorFlow.js](https://js.tensorflow.org/api/latest/)
-* 🚀 [TensorFlow Hub (Modelos pre-entrenados)](https://tfhub.dev/)
-
----
-
-## 📂 Contenido del Capítulo
-
-En este módulo introductorio encontrarás:
-
-* **Fundamentos:** Diferencias clave entre IA, ML y Deep Learning.
-* **Estrategias:** Tipos de ML (Supervisado, No Supervisado y por Refuerzo).
-* **Tipos de Problemas:** Regresión (predicción numérica) vs. Clasificación (categorización).
-* **Las 3 formas de usar TensorFlow.js:**
-    1.  **Modelos listos para usar** (Off-the-shelf).
-    2.  **Transfer Learning** (Re-entrenar modelos existentes).
-    3.  **Modelos personalizados** creados desde cero.
-
----
-
-## 📊 Material Adjunto
-
-Puedes consultar las presentaciones detalladas en formato PDF dentro de esta carpeta:
-
-* 📄 **De_Reglas_a_Datos.pdf**: Explicación visual del cambio de paradigma en la programación.
-* 📄 **Google_AI_for_JS_developers.pdf**: Guía técnica sobre el ecosistema de Google para desarrolladores JS.
-
----
+1. **Instalación/Ejecución:**
+   ```bash
+   npx http-server . --cors
+   ```
