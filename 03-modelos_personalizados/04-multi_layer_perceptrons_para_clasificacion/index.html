@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TensorFlow.js MNIST Classifier | Profesional</title>
+    <link rel="icon" type="image/png" href="tensorflow.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <style>
+        canvas {
+            image-rendering: pixelated;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.02);
+                opacity: 0.9;
+            }
+        }
+
+        .training-pulse {
+            animation: pulse-soft 2s infinite ease-in-out;
+        }
+
+        .prob-bar {
+            display: inline-block;
+            height: 6px;
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+    <div class="max-w-5xl mx-auto py-12 px-6">
+
+        <header class="text-center mb-12">
+            <span
+                class="bg-orange-100 text-orange-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">
+                Inteligencia Artificial: Proyecto 04
+            </span>
+            <h1 class="text-6xl font-black text-slate-800 mt-4 mb-2 tracking-tighter">
+                MNIST <span class="text-orange-600 italic">Classifier</span>
+            </h1>
+            <p class="text-slate-400 font-medium max-w-xl mx-auto">Reconocimiento avanzado de dígitos mediante
+                Perceptrón Multicapa y Softmax.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- Input -->
+            <section
+                class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 text-center flex flex-col items-center">
+                <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-8 italic">Imagen de Entrada
+                </h2>
+                <div
+                    class="bg-slate-950 p-4 rounded-[2rem] shadow-2xl transition-transform hover:scale-105 duration-500">
+                    <canvas id="canvas" width="28" height="28" class="w-56 h-56 rounded-xl"></canvas>
+                </div>
+            </section>
+
+            <!-- Prediction -->
+            <section
+                class="bg-white p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-100 text-center flex flex-col items-center justify-center relative overflow-hidden">
+                <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 italic">Inferencia</h2>
+
+                <div id="prediction-container"
+                    class="flex items-center justify-center w-64 h-64 rounded-[3.5rem] border-2 border-dashed border-slate-100 transition-all duration-700">
+                    <span id="prediction"
+                        class="text-2xl font-black text-slate-200 uppercase tracking-widest">Iniciando</span>
+                </div>
+
+                <div class="mt-8 flex gap-8">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase">Correcto</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                        <span class="text-[10px] font-black text-slate-400 uppercase">Error</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Terminal -->
+        <section class="mt-12 bg-slate-900 rounded-[3rem] p-10 shadow-2xl border border-slate-800">
+            <div class="flex items-center justify-between mb-6 border-b border-slate-800 pb-6">
+                <div class="flex gap-2.5">
+                    <div class="w-3 h-3 rounded-full bg-slate-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800"></div>
+                    <div class="w-3 h-3 rounded-full bg-slate-800"></div>
+                </div>
+                <span class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Neural Engine
+                    Monitor</span>
+            </div>
+            <div id="consoleLog"
+                class="h-80 overflow-y-auto font-mono text-[11px] text-orange-400/70 space-y-2 scrollbar-hide">
+                > Cargando módulos de visión artificial...
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="js/main.js" defer></script>
+</body>
+
+</html>
