@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyecto 3: MLP - Superando la Linealidad</title>
+  <link rel="icon" type="image/png" href="tensorflow.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    @keyframes pulse-soft {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .training-pulse {
+      animation: pulse-soft 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-900 min-h-screen">
+  <div class="max-w-6xl mx-auto py-12 px-6">
+    <header class="text-center mb-10">
+      <span
+        class="bg-emerald-100 text-emerald-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
+        Evolución: Proyecto 3
+      </span>
+      <h1 class="text-5xl font-black text-slate-800 mt-4 mb-3 tracking-tight">
+        Red Neuronal <span class="text-emerald-600">Multicapa</span>
+      </h1>
+      <p class="text-slate-500 max-w-2xl mx-auto text-lg font-medium">
+        Dominando la curva no lineal $y = x^2$ mediante capas ocultas y activación ReLU.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-4 space-y-6">
+        <section class="bg-white p-6 rounded-[2rem] shadow-xl border-l-4 border-emerald-500">
+          <h2 class="text-lg font-bold text-slate-800 mb-3 uppercase italic tracking-tighter">¿Por qué funciona?</h2>
+          <p class="text-xs text-slate-500 leading-relaxed font-medium">
+            Las <strong>Capas Ocultas</strong> con <strong>ReLU</strong> permiten que el modelo rompa la linealidad,
+            aprendiendo la curvatura de la parábola.
+          </p>
+        </section>
+
+        <section class="bg-slate-800 p-6 rounded-[2rem] shadow-lg text-slate-300">
+          <h3 class="font-bold text-white mb-2 text-sm uppercase">Resumen del Modelo</h3>
+          <div id="modelSummary"
+            class="text-[10px] font-mono leading-tight bg-black/30 p-3 rounded-xl whitespace-pre-wrap">
+            Esperando inicio...
+          </div>
+        </section>
+
+        <div class="bg-slate-900 rounded-[2rem] p-6 shadow-inner">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Monitor</span>
+            <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-600"></div>
+          </div>
+          <div id="terminal"
+            class="h-40 overflow-y-auto font-mono text-[11px] text-emerald-400 space-y-1 scrollbar-hide">
+            > Sistema listo...
+          </div>
+        </div>
+      </div>
+      <div class="lg:col-span-8 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-100">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+          <div class="text-left">
+            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Control Center</h2>
+            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Adam | LR: 0.01</p>
+          </div>
+          <button id="btnTrain"
+            class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 px-10 rounded-2xl transition-all shadow-lg shadow-emerald-200 active:scale-95 disabled:opacity-50">
+            INICIAR ENTRENAMIENTO
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 relative">
+            <span
+              class="absolute top-0 right-0 px-3 py-1 bg-emerald-100 text-emerald-700 text-[8px] font-black uppercase tracking-widest">RMSE
+              Error</span>
+            <p id="lossValue" class="text-4xl font-mono font-black text-slate-800 tracking-tighter">-</p>
+          </div>
+          <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 relative">
+            <span
+              class="absolute top-0 right-0 px-3 py-1 bg-blue-100 text-blue-700 text-[8px] font-black uppercase tracking-widest">Inferencia
+              7²</span>
+            <p id="predictionValue" class="text-4xl font-mono font-black text-slate-800 tracking-tighter">?</p>
+          </div>
+        </div>
+        <div class="relative h-64 w-full bg-slate-50 rounded-3xl border border-slate-100 p-4">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/main.js" defer></script>
+</body>
+
+</html>
