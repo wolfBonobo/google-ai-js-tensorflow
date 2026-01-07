@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion AI Classifier | Modular MLP</title>
+    <link rel="icon" type="image/png" href="tensorflow.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <style>
+        /* Renderizado pixelado para mantener la nitidez de las prendas de 28x28 */
+        canvas {
+            image-rendering: pixelated;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+
+        .prob-bar {
+            display: inline-block;
+            height: 6px;
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
+
+    <div class="max-w-6xl mx-auto py-10 px-6">
+        <!-- Encabezado -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div class="text-center md:text-left">
+                <span class="text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em]">Hito de Evolución:
+                    Proyecto 05</span>
+                <h1 class="text-5xl font-black text-white tracking-tighter uppercase italic mt-1">Fashion <span
+                        class="text-indigo-500">AI</span></h1>
+                <p class="text-slate-400 font-medium">Clasificador de Prendas mediante Perceptrón Multicapa</p>
+            </div>
+            <button id="trainButton"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-900/40 transition-all active:scale-95 disabled:opacity-50">
+                ENTRENAR MODELO (>85% ACC)
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Sidebar: Métricas -->
+            <aside class="space-y-6">
+                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
+                    <h2
+                        class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2 italic">
+                        Arquitectura</h2>
+                    <div id="modelSummary" class="space-y-3 text-[11px] font-mono">
+                        <div class="flex justify-between"><span class="text-slate-500">Entrada:</span> <span>784
+                                px</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">MLP:</span> <span
+                                class="text-indigo-300">128 → 64 → 10</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Activación:</span> <span
+                                class="text-indigo-300">ReLU / Softmax</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
+                    <h2
+                        class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2 italic">
+                        Estado de Red</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span
+                                    class="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Precisión</span>
+                                <span id="accLabel" class="text-xl font-black text-indigo-400">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden shadow-inner">
+                                <div id="progressBar"
+                                    class="h-full bg-indigo-500 transition-all duration-300 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                                <p class="text-[9px] text-slate-500 font-black uppercase">Loss</p>
+                                <p id="lossLabel" class="text-sm font-mono font-bold text-slate-300">0.0000</p>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                                <p class="text-[9px] text-slate-500 font-black uppercase">Progreso</p>
+                                <p id="epochLabel" class="text-sm font-mono font-bold text-slate-300">0/50</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main: Inferencia -->
+            <main class="lg:col-span-2 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div
+                        class="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col items-center text-center shadow-2xl">
+                        <span
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-6 italic">Muestra
+                            Visual</span>
+                        <div
+                            class="bg-black p-3 rounded-2xl shadow-2xl border border-slate-800 transition-transform hover:scale-105 duration-500">
+                            <canvas id="canvas" width="28" height="28" class="w-48 h-48 rounded-lg"></canvas>
+                        </div>
+                        <p id="groundTruth"
+                            class="mt-6 text-[10px] text-slate-500 font-black uppercase tracking-widest">En espera</p>
+                    </div>
+
+                    <div
+                        class="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden">
+                        <span
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 italic">Inferencia
+                            IA</span>
+                        <div id="predictionBox"
+                            class="w-full flex flex-col items-center justify-center py-8 rounded-[2.5rem] border-2 border-dashed border-slate-800 transition-all duration-500 relative bg-slate-950/50">
+                            <span id="predictionText"
+                                class="text-[6rem] font-black leading-none transition-all duration-700 select-none">?</span>
+                            <p id="predictionLabel"
+                                class="text-xs font-bold text-slate-500 mt-2 uppercase tracking-[0.2em]"></p>
+                        </div>
+                        <div id="confidenceBarContainer"
+                            class="w-full bg-slate-800 h-1.5 mt-6 rounded-full overflow-hidden opacity-0 transition-opacity duration-500">
+                            <div id="confidenceFill" class="h-full bg-indigo-500 w-0 transition-all duration-700"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal -->
+                <div class="bg-black p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-900 pb-4">
+                        <div class="flex gap-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Engine Training
+                            Log</span>
+                    </div>
+                    <div id="consoleLog"
+                        class="h-64 overflow-y-auto text-[11px] font-mono text-indigo-400/70 space-y-1.5 scrollbar-hide">
+                        > Sistema cargado. Pulsa ENTRENAR para comenzar.
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js" defer></script>
+</body>
+
+</html>
