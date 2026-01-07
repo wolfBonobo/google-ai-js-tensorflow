@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion AI CNN | Poder Convolucional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <style>
+        /* Mantenemos el renderizado pixelado para ver los rasgos de la prenda nítidos */
+        canvas {
+            image-rendering: pixelated;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Efecto de escaneo para la inferencia CNN */
+        @keyframes scan {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 0 20px #6366f1, 0 0 40px #6366f1;
+            animation: scan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-indigo-500/30">
+
+    <div class="max-w-6xl mx-auto py-12 px-6">
+        <!-- Encabezado con Estilo Técnico -->
+        <header class="flex flex-col md:flex-row justify-between items-end mb-12 gap-8 border-b border-slate-900 pb-10">
+            <div class="text-left">
+                <div class="flex items-center gap-3 mb-4">
+                    <span
+                        class="bg-indigo-500/10 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full border border-indigo-500/20 uppercase tracking-[0.3em]">
+                        Arquitectura Avanzada: Proyecto 06
+                    </span>
+                </div>
+                <h1 class="text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
+                    Fashion <span class="text-indigo-500">CNN</span>
+                </h1>
+                <p class="text-slate-500 font-medium mt-4 text-lg">Detección de Patrones mediante Redes Convolucionales
+                    2D</p>
+            </div>
+
+            <!-- Control de Velocidad de Inferencia -->
+            <div class="bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800 flex items-center gap-6 shadow-2xl">
+                <div class="text-right">
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Intervalo de Test
+                    </p>
+                    <p id="domSpeed" class="text-sm font-mono font-bold text-indigo-400">2000ms</p>
+                </div>
+                <input id="speedRange" type="range" min="100" max="5000" value="2000"
+                    class="w-40 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Sidebar: Monitor de Arquitectura y Métricas -->
+            <aside class="space-y-6">
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
+                    <h2
+                        class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-6 border-b border-slate-800 pb-4 italic">
+                        Estructura Conv2D</h2>
+                    <div class="space-y-3 font-mono text-[10px]">
+                        <div class="flex justify-between p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                            <span class="text-slate-500">Input:</span> <span>28x28x1</span>
+                        </div>
+                        <div class="flex justify-between p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                            <span class="text-slate-500">Kernels:</span> <span class="text-indigo-400">16 (3x3)</span>
+                        </div>
+                        <div class="flex justify-between p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                            <span class="text-slate-500">Pooling:</span> <span class="text-indigo-400">Max 2x2</span>
+                        </div>
+                        <div class="flex justify-between p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                            <span class="text-slate-500">Optim:</span> <span class="text-indigo-400">Adam</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl">
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between mb-3">
+                                <span
+                                    class="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Precisión</span>
+                                <span id="accLabel" class="text-3xl font-black text-indigo-400">0.0%</span>
+                            </div>
+                            <div
+                                class="w-full bg-slate-800 h-3 rounded-full overflow-hidden shadow-inner border border-slate-700">
+                                <div id="progressBar"
+                                    class="h-full bg-indigo-500 transition-all duration-300 shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-950 p-5 rounded-3xl border border-slate-800 text-center">
+                                <p class="text-[9px] text-slate-600 font-black uppercase mb-1 tracking-widest">Loss</p>
+                                <p id="lossLabel" class="text-sm font-mono font-bold text-slate-300">0.0000</p>
+                            </div>
+                            <div class="bg-slate-950 p-5 rounded-3xl border border-slate-800 text-center">
+                                <p class="text-[9px] text-slate-600 font-black uppercase mb-1 tracking-widest">Época</p>
+                                <p id="epochLabel" class="text-sm font-mono font-bold text-slate-300">0/30</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="trainButton"
+                    class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-6 rounded-[2rem] font-black shadow-2xl shadow-indigo-900/40 transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest">
+                    Entrenar CNN
+                </button>
+            </aside>
+
+            <!-- Main Content: Visualización de Inferencia -->
+            <main class="lg:col-span-2 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Área de la Imagen -->
+                    <div
+                        class="bg-slate-900 p-10 rounded-[3rem] border border-slate-800 flex flex-col items-center shadow-2xl relative overflow-hidden group">
+                        <div class="scanner-line opacity-0" id="scanner"></div>
+                        <span
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-10 italic">Extracción
+                            Espacial</span>
+                        <div
+                            class="bg-black p-5 rounded-3xl shadow-2xl border border-indigo-500/10 transition-all duration-500 group-hover:scale-105">
+                            <canvas id="canvas" width="28" height="28" class="w-56 h-56 rounded-xl"></canvas>
+                        </div>
+                        <p id="groundTruth"
+                            class="mt-10 text-[10px] text-slate-600 font-black uppercase tracking-[0.3em]">Esperando
+                            Inferencia...</p>
+                    </div>
+
+                    <!-- Área del Resultado -->
+                    <div id="predictionBox"
+                        class="bg-slate-900 p-10 rounded-[3rem] border border-slate-800 flex flex-col items-center justify-center text-center shadow-2xl">
+                        <span
+                            class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-8 italic">Pattern
+                            Match</span>
+                        <div
+                            class="w-full flex flex-col items-center justify-center py-12 rounded-[3.5rem] border-2 border-dashed border-slate-800 bg-slate-950/40 relative">
+                            <span id="predictionText"
+                                class="text-[10rem] font-black leading-none text-slate-800 transition-all duration-700 select-none tracking-tighter">?</span>
+                            <p id="predictionLabel"
+                                class="text-sm font-black text-slate-400 mt-6 uppercase tracking-[0.5em] italic"></p>
+                        </div>
+                        <!-- Elementos faltantes añadidos para evitar el error de JavaScript -->
+                        <div id="confidenceBarContainer"
+                            class="w-full bg-slate-800 h-1.5 mt-6 rounded-full overflow-hidden opacity-0 transition-opacity duration-500">
+                            <div id="confidenceFill" class="h-full bg-indigo-500 w-0 transition-all duration-700"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal de Log -->
+                <div class="bg-black p-8 rounded-[3rem] border border-slate-800 shadow-2xl relative overflow-hidden">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-900 pb-4">
+                        <div class="flex gap-2.5">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                        </div>
+                        <span class="text-[10px] font-black text-slate-600 uppercase tracking-[0.5em]">Neural Engine
+                            Monitor</span>
+                    </div>
+                    <div id="consoleLog"
+                        class="h-60 overflow-y-auto text-[11px] font-mono text-indigo-400/70 space-y-2 scrollbar-hide">
+                        > Sistema listo. Pulsa ENTRENAR para iniciar Adam Optimizer...
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- El controlador principal se encarga de orquestar los servicios -->
+    <script type="module" src="js/main.js" defer></script>
+</body>
+
+</html>
