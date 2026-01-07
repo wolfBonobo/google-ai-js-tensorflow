@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TF.js: Límites de la Linealidad</title>
+  <link rel="icon" type="image/png" href="tensorflow.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+  <style>
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .progress-transition {
+      transition: width 0.4s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
+
+  <div class="max-w-5xl mx-auto">
+    <!-- Encabezado con estética de advertencia -->
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-black text-rose-500 mb-2 uppercase italic tracking-tighter">
+        Proyecto 2: Límites de la Neurona
+      </h1>
+      <div class="h-1 w-24 bg-rose-500 mx-auto rounded-full mb-4"></div>
+      <p class="text-slate-400 text-sm max-w-2xl mx-auto uppercase tracking-widest font-bold">
+        ¿Puede una arquitectura lineal ($y=mx+b$) aprender una curva cuadrática?
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Panel de Control e Indicadores -->
+      <div class="lg:col-span-4 space-y-6">
+        <section class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
+          <h2 class="text-xl font-black mb-6 flex items-center gap-2 uppercase italic">
+            <span class="w-2 h-6 bg-rose-500 rounded-full"></span>
+            Control
+          </h2>
+
+          <button id="trainBtn"
+            class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-rose-900/40 active:scale-95 disabled:opacity-30">
+            INICIAR ENTRENAMIENTO
+          </button>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex justify-between items-end">
+              <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Error RMSE</p>
+              <span id="lossValue" class="text-2xl font-mono text-rose-400 font-black">-</span>
+            </div>
+            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-700">
+              <div id="progressBar" class="bg-rose-500 h-full progress-transition" style="width: 0%"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
+          <h2 class="text-xl font-black mb-4 flex items-center gap-2 uppercase italic text-emerald-400">
+            <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>
+            Inferencia: 7²
+          </h2>
+          <p class="text-[10px] text-slate-500 uppercase font-black mb-4 italic">Objetivo Real: 49.00</p>
+          <div id="predictionResult"
+            class="text-5xl font-black text-emerald-400 tracking-tighter tabular-nums underline decoration-emerald-900/50">
+            ?
+          </div>
+        </section>
+      </div>
+
+      <!-- Visualización y Logs -->
+      <div class="lg:col-span-8 space-y-6">
+        <section class="bg-white p-4 rounded-[2.5rem] shadow-2xl h-[450px] overflow-hidden">
+          <div id="plotContainer" class="w-full h-full"></div>
+        </section>
+
+        <section
+          class="bg-black/50 p-6 rounded-[2rem] border border-slate-800 shadow-2xl font-mono text-[10px] text-slate-400">
+          <div class="flex items-center gap-2 mb-4 border-b border-slate-800 pb-2">
+            <div class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
+            <span class="text-rose-500 font-bold uppercase tracking-widest">Neural Underfitting Monitor</span>
+          </div>
+          <div id="consoleLog" class="h-32 overflow-y-auto space-y-1 scrollbar-hide">
+            > Sistema listo. A la espera de iniciar el entrenamiento lineal...
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js" type="module"></script>
+</body>
+
+</html>

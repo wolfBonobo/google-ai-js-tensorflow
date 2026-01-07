@@ -1,0 +1,33 @@
+﻿# Output folders
+dist/
+out-tsc/
+
+# Dependencies
+node_modules/
+
+# Angular cache
+.angular/
+
+# Build artifacts
+build/
+tmp/
+
+# Coverage reports
+coverage/
+
+# Environment files (optional, keeps .env unformatted)
+.env
+.env.*
+*.local
+
+# Ignore VSCode internal workspace folders
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Ignore compiled CSS from SCSS pipelines (if added later)
+*.css.map
+
+# Ignore assets
+src/assets/**
+!src/assets/*.json
